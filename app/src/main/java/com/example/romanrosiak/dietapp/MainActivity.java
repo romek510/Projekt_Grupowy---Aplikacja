@@ -6,11 +6,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
 
 import com.example.romanrosiak.dietapp.Adapters.MealAdapter;
 import com.example.romanrosiak.dietapp.Adapters.WeekAdapter;
 import com.example.romanrosiak.dietapp.ListViewHolder.MealHolder;
+import com.example.romanrosiak.dietapp.ListViewHolder.RecyclerItemClickListener;
 import com.example.romanrosiak.dietapp.ListViewHolder.WeekListHolder;
 
 import java.util.ArrayList;
@@ -51,13 +53,44 @@ public class MainActivity extends AppCompatActivity {
         weekRV.setItemAnimator(new DefaultItemAnimator());
         weekRV.setAdapter(weekAdapter);
 
+        weekRV.addOnItemTouchListener(
+                new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        // TODO Handle item click
+                        Log.d("Romek", String.valueOf(position));
+                        Log.d("Romek weekName", weekList.get(position).getWeekName());
+                    }
+                })
+        );
+
+
         dayRV.setLayoutManager(horizontaldayRVlayout);
         dayRV.setItemAnimator(new DefaultItemAnimator());
         dayRV.setAdapter(dayAdapter);
 
+        dayRV.addOnItemTouchListener(
+                new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        // TODO Handle item click
+                        Log.d("Romek", String.valueOf(position));
+                        Log.d("Romek dayName", dayList.get(position).getWeekName());
+                    }
+                })
+        );
+
         mealRV.setLayoutManager(verticalMealRVlayout);
         mealRV.setItemAnimator(new DefaultItemAnimator());
         mealRV.setAdapter(mealAdapter);
+
+        mealRV.addOnItemTouchListener(
+                new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        // TODO Handle item click
+                        Log.d("Romek", String.valueOf(position));
+                        Log.d("Romek mealName", mealList.get(position).getMealName());
+                    }
+                })
+        );
 
         prepareWeekListData();
         prepareDayListData();
