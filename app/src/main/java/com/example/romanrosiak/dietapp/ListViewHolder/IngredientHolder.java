@@ -10,6 +10,10 @@ public class IngredientHolder {
     public double ingredientQuantity;
     public String quantityType;
 
+    public IngredientHolder() {
+
+    }
+
     public IngredientHolder(String ingredientName, double ingredientQuantity, String quantityType) {
         this.ingredientName = ingredientName;
         this.ingredientQuantity = ingredientQuantity;

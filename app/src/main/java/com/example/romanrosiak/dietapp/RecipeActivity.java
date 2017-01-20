@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.romanrosiak.dietapp.Adapters.IngredientsAdapter;
@@ -17,6 +18,10 @@ import com.example.romanrosiak.dietapp.Adapters.WeekAdapter;
 import com.example.romanrosiak.dietapp.ListViewHolder.IngredientHolder;
 import com.example.romanrosiak.dietapp.ListViewHolder.RecyclerItemClickListener;
 import com.example.romanrosiak.dietapp.ListViewHolder.WeekListHolder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,12 +85,19 @@ public class RecipeActivity extends AppCompatActivity {
     private RecyclerView ingredientsRV;
     private IngredientsAdapter ingredientAdapter;
 
+    private ScrollView recipe_sv;
+    private TextView recipe_not_found;
+    private TextView preparationTV;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
 
         mealNameTV = (TextView) findViewById(R.id.mealNameTV_recipe);
+        recipe_sv = (ScrollView) findViewById(R.id.recipe_scrollView);
+        recipe_not_found = (TextView) findViewById(R.id.recipe_not_foundTV);
+        preparationTV = (TextView) findViewById(R.id.preparationTV);
 
         Intent activityIntent = getIntent();
         Bundle activityBundle = activityIntent.getExtras();
@@ -106,37 +118,32 @@ public class RecipeActivity extends AppCompatActivity {
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
         ingredientsRV.addItemDecoration(itemDecoration);
 
-        prepareIngredientListData();
-        Log.d("Romek JSON file:", jsonFile);
+        JSONObject json;
+        JSONArray jsonArray = null;
+        try {
+            json = new JSONObject(jsonFile);
+            jsonArray = json.getJSONArray("mainMealsRecipes");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JSONObject meal = Util.findMealObject(jsonArray, mealNameBundle);
+        if(meal != null){
+            Log.d("Romek selected meal:", meal.toString());
+            try {
+                ingredientList.addAll(Util.prepareIngredientList(meal.getJSONArray("ingredients")));
+                ingredientAdapter.notifyDataSetChanged();
+                preparationTV.setText(meal.getString("preparationInstructions"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }else{
+            recipe_not_found.setVisibility(View.VISIBLE);
+            recipe_sv.setVisibility(View.GONE);
+            Log.d("Romek selected meal:", "meal not found");
+        }
+
 
     }
 
-    private void prepareIngredientListData() {
-        IngredientHolder ingredient = new IngredientHolder("makaron razowy", 70, "g");
-        ingredientList.add(ingredient);
-
-        ingredient = new IngredientHolder("brokuly", 150, "g");
-        ingredientList.add(ingredient);
-
-        ingredient = new IngredientHolder("piers z indyka", 100, "g");
-        ingredientList.add(ingredient);
-
-        ingredient = new IngredientHolder("czosnek", 1, "sztuka");
-        ingredientList.add(ingredient);
-
-        ingredient = new IngredientHolder("parmezan", 2, "łyżki");
-        ingredientList.add(ingredient);
-
-        ingredient = new IngredientHolder("masło", 0.5, "łyzki");
-        ingredientList.add(ingredient);
-
-        ingredient = new IngredientHolder("ser kanapkowy", 1, "łyżka");
-        ingredientList.add(ingredient);
-
-        ingredient = new IngredientHolder("natka pietruszki", 2, "łyżki");
-        ingredientList.add(ingredient);
-
-
-        ingredientAdapter.notifyDataSetChanged();
-    }
 }
