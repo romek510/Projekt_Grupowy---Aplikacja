@@ -4,10 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/appBackground"
     tools:context="com.example.romanrosiak.dietapp.MainActivity">
 
 
@@ -19,7 +16,8 @@
         android:orientation="horizontal"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:background="@color/weekBar"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/dayRV"
@@ -28,6 +26,7 @@
         android:scrollbars="horizontal"
         android:orientation="horizontal"
         android:layout_below="@+id/weekRV"
+        android:background="@color/dayBar"
         />
 
     <android.support.v7.widget.RecyclerView
@@ -35,37 +34,46 @@
         android:layout_height="wrap_content"
         android:id="@+id/dietRV"
         android:layout_below="@+id/dayRV"
-        android:layout_above="@+id/bottomPanel"/>
+        android:layout_above="@+id/bottomPanel"
+        android:paddingTop="10dp"
+        android:background="@color/mealBackground"/>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/bottomPanel">
+        android:id="@+id/bottomPanel"
+        android:background="@color/bottomBarBackground">
 
         <TextView
             android:text="Dieta"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/dietTV"
+            android:layout_height="match_parent"
+            android:id="@+id/dietPageTabTV"
             android:textAlignment="center"
+            android:textColor="@color/white"
+            android:gravity="center"
             android:layout_weight="1"/>
         <TextView
             android:text="Lista Zakupów"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/shoppingListTV"
+            android:layout_height="match_parent"
+            android:id="@+id/shoppingListPageTabTV"
             android:textAlignment="center"
+            android:gravity="center"
+            android:textColor="@color/white"
             android:layout_weight="1"/>
         <TextView
             android:text="Opcje"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/optionTV"
+            android:layout_height="match_parent"
+            android:id="@+id/optionPageTabTV"
             android:textAlignment="center"
+            android:gravity="center"
+            android:textColor="@color/white"
             android:layout_weight="1"/>
 
     </LinearLayout>

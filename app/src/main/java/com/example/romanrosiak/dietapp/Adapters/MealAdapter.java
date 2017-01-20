@@ -31,7 +31,6 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MyViewHolder> 
         }
     }
 
-
     public MealAdapter(List<MealHolder> mealList) {
         this.mealList = mealList;
     }
@@ -50,7 +49,6 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MyViewHolder> 
         holder.mealName.setText(meal.getMealName());
         holder.mealType.setText(meal.getMealType());
         holder.mealHour.setText(meal.getMealHour());
-
     }
 
     @Override

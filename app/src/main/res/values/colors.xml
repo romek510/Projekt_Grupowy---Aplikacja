@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="appBackground">#383466</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="mealBackground">#444071</color>
+    <color name="mealAdditionalInfoBackqround">#a7e579</color>
+    <color name="dayBar">#302d50</color>
+    <color name="weekBar">#1d1a3b</color>
+    <color name="bottomBarBackground">#302d50</color>
 </resources>

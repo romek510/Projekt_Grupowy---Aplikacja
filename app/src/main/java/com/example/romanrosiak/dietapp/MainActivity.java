@@ -1,5 +1,8 @@
 package com.example.romanrosiak.dietapp;
 
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -8,6 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.romanrosiak.dietapp.Adapters.MealAdapter;
 import com.example.romanrosiak.dietapp.Adapters.WeekAdapter;
@@ -15,6 +20,13 @@ import com.example.romanrosiak.dietapp.ListViewHolder.MealHolder;
 import com.example.romanrosiak.dietapp.ListViewHolder.RecyclerItemClickListener;
 import com.example.romanrosiak.dietapp.ListViewHolder.WeekListHolder;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,17 +44,28 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mealRV;
     private MealAdapter mealAdapter;
 
+    private TextView pageTabTV;
+
+    public String filePath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DietApp/receip.json";
+        filePath = System.getenv("SECONDARY_STORAGE")+"/DietApp/receip.json";
+
+        pageTabTV = (TextView) findViewById(R.id.dietPageTabTV);
+        pageTabTV.setBackgroundResource(R.drawable.page_selector);
+
+
         weekRV = (RecyclerView) findViewById(R.id.weekRV);
         dayRV = (RecyclerView) findViewById(R.id.dayRV);
         mealRV = (RecyclerView) findViewById(R.id.dietRV);
 
-        weekAdapter = new WeekAdapter(weekList);
-        dayAdapter = new WeekAdapter(dayList);
+        weekAdapter = new WeekAdapter(weekList, "week");
+        dayAdapter = new WeekAdapter(dayList, "day");
         mealAdapter = new MealAdapter(mealList);
 
         LinearLayoutManager horizontalweekRVlayout = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
@@ -58,7 +81,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onItemClick(View view, int position) {
                         // TODO Handle item click
                         Log.d("Romek", String.valueOf(position));
-                        Log.d("Romek weekName", weekList.get(position).getWeekName());
+                        Log.d("Romek ingredientName", weekList.get(position).getWeekName());
+                        Log.d("Romek filepath: ", filePath.toString());
+
                     }
                 })
         );
@@ -88,6 +113,12 @@ public class MainActivity extends AppCompatActivity {
                         // TODO Handle item click
                         Log.d("Romek", String.valueOf(position));
                         Log.d("Romek mealName", mealList.get(position).getMealName());
+                        Intent intentBundle = new Intent(getApplicationContext(), RecipeActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("mealName", mealList.get(position).getMealName());
+
+                        intentBundle.putExtras(bundle);
+                        startActivity(intentBundle);
                     }
                 })
         );
@@ -95,6 +126,47 @@ public class MainActivity extends AppCompatActivity {
         prepareWeekListData();
         prepareDayListData();
         prepareMealListData();
+
+
+//        try {
+//            String json = getStringFromFile(filePath);
+//            Log.d("Romek Json: ", json);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        File dir = Environment.getExternalStorageDirectory();
+//        File dir = new File(System.getenv("SECONDARY_STORAGE"));
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "receip.txt");
+        if(file.exists())   // check if file exist
+        {
+            //Read text from file
+            StringBuilder text = new StringBuilder();
+
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String line;
+
+                while ((line = br.readLine()) != null) {
+                    text.append(line);
+                    text.append("\n");
+                }
+            }
+            catch (IOException e) {
+                //You'll need to add proper error handling here
+            }
+            //Set the text
+           Log.d("File text:", text.toString() );
+            Toast.makeText(getApplicationContext(),"File Found", Toast.LENGTH_SHORT);
+        }
+        else
+        {
+            Log.d("Romek file:", "File not found" );
+            Toast.makeText(getApplicationContext(),"File not Found", Toast.LENGTH_SHORT);
+        }
+
+        isExternalStorageReadable();
+        isExternalStorageWritable();
     }
 
     private void prepareWeekListData() {
@@ -163,4 +235,50 @@ public class MainActivity extends AppCompatActivity {
         mealAdapter.notifyDataSetChanged();
         Log.d("Romek - Meal Adapter: ", mealAdapter.toString());
     }
+
+
+    public static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    public static String getStringFromFile (String filePath) throws Exception {
+        File fl = new File(System.getenv("SECONDARY_STORAGE"));
+        Log.d("Romek files: ", fl.toString());
+        FileInputStream fin = new FileInputStream(fl);
+        String ret = convertStreamToString(fin);
+        //Make sure you close all streams.
+        fin.close();
+        return ret;
+    }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            Log.d("Romek", "External Storage is writable");
+            return true;
+        }
+        Log.d("Romek", "External Storage is not writable");
+        return false;
+    }
+
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            Log.d("Romek", "External Storage is readable");
+            return true;
+        }
+        Log.d("Romek", "External Storage is not readable");
+        return false;
+    }
+
+
 }
