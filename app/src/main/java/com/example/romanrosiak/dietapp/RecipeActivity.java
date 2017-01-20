@@ -1,6 +1,8 @@
 package com.example.romanrosiak.dietapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.romanrosiak.dietapp.Adapters.IngredientsAdapter;
 import com.example.romanrosiak.dietapp.Adapters.MealAdapter;
@@ -23,64 +26,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeActivity extends AppCompatActivity {
+public class RecipeActivity extends AppCompatActivity{
 
     public TextView mealNameTV;
     public String mealNameBundle;
-
-    public static String jsonFile = "{\n" +
-            "\t\"mainMealsRecipes\": [\n" +
-            "\t\t{\n" +
-            "\t\t  \"name\": \"Twarożek z Kiełkami\",\n" +
-            "\t\t  \"calories\": \"300\",\n" +
-            "\t\t  \"ingredients\": [\n" +
-            "\t\t\t{\n" +
-            "\t\t\t  \"amount\": \"200\",\n" +
-            "\t\t\t  \"ingredient\": \"Twarożek\",\n" +
-            "\t\t\t  \"unit\": \"g\"\n" +
-            "\t\t\t},\n" +
-            "\t\t\t{\n" +
-            "\t\t\t  \"amount\": \"10\",\n" +
-            "\t\t\t  \"ingredient\": \"Kiełki\",\n" +
-            "\t\t\t  \"unit\": \"g\"\n" +
-            "\t\t\t},\n" +
-            "\t\t\t{\n" +
-            "\t\t\t  \"amount\": \"2\",\n" +
-            "\t\t\t  \"ingredient\": \"Chleb\",\n" +
-            "\t\t\t  \"unit\": \"kromki\"\n" +
-            "\t\t\t}\n" +
-            "\t\t  ],\n" +
-            "\t\t  \"preparationInstructions\": \"Dodać kiełki do twarożku i dokładnie wymieszać. Zjeść z chlebem\"\n" +
-            "\t\t},\n" +
-            "\t\t{\n" +
-            "\t\t  \"name\": \"Riggatoni z brokułem\",\n" +
-            "\t\t  \"calories\": \"300\",\n" +
-            "\t\t  \"ingredients\": [\n" +
-            "\t\t\t{\n" +
-            "\t\t\t  \"amount\": \"70\",\n" +
-            "\t\t\t  \"ingredient\": \"Makaron Razowy\",\n" +
-            "\t\t\t  \"unit\": \"g\"\n" +
-            "\t\t\t},\n" +
-            "\t\t\t{\n" +
-            "\t\t\t  \"amount\": \"150\",\n" +
-            "\t\t\t  \"ingredient\": \"brokuł\",\n" +
-            "\t\t\t  \"unit\": \"g\"\n" +
-            "\t\t\t},\n" +
-            "\t\t\t{\n" +
-            "\t\t\t  \"amount\": \"100\",\n" +
-            "\t\t\t  \"ingredient\": \"pierś z indyka\",\n" +
-            "\t\t\t  \"unit\": \"g\"\n" +
-            "\t\t\t}\n" +
-            "\t\t  ],\n" +
-            "\t\t  \"preparationInstructions\": \"Wstawić wodę na makaron na ogień oraz drugi garnek z wodą do zblanszowania brokułów. Obrać czosnek. Pokroić go w plasterki, badź zmiażdzyć, włożyć na patelenie, dodać masło lub oliwę. Delikatnie podsmażyć na małym ogniu, a w miedzyczasie oczyścic mieso i pokroić na małe kawałki, a następnie doprawić solą i pieprzem. Wrzucić na patalnię i podsmażyć razem z czosnkiem. Następnie odciąć różyczki od głąba brokuła i przekroić na mniejsze fragmenty. Gdy woda zaczyna wrzeć wsypać do jednego garnka makaron, a do drugiego brokuły.....\"\n" +
-            "\t\t}\n" +
-            "\t\t\n" +
-            "\t  ]\n" +
-            "}";
-
     private List<IngredientHolder> ingredientList = new ArrayList<>();
     private RecyclerView ingredientsRV;
     private IngredientsAdapter ingredientAdapter;
@@ -118,10 +74,13 @@ public class RecipeActivity extends AppCompatActivity {
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
         ingredientsRV.addItemDecoration(itemDecoration);
 
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/receip.txt";
+        String jsonString = Util.returnStringFromFile(filePath);
+
         JSONObject json;
         JSONArray jsonArray = null;
         try {
-            json = new JSONObject(jsonFile);
+            json = new JSONObject(jsonString);
             jsonArray = json.getJSONArray("mainMealsRecipes");
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,8 +101,5 @@ public class RecipeActivity extends AppCompatActivity {
             recipe_sv.setVisibility(View.GONE);
             Log.d("Romek selected meal:", "meal not found");
         }
-
-
     }
-
 }

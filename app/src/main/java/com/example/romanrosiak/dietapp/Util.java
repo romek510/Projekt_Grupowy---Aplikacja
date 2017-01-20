@@ -8,6 +8,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,5 +67,38 @@ public class Util {
         }
 
         return ingList;
+    }
+
+    public static String returnStringFromFile(String filePath){
+
+        //Read text from file
+        StringBuilder text = new StringBuilder();
+        String result = null;
+
+        File file = new File(filePath);
+        if(file.exists())   // check if file exist
+        {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String line;
+
+                while ((line = br.readLine()) != null) {
+                    text.append(line);
+                    text.append("\n");
+                }
+
+                result = text.toString();
+            }
+            catch (IOException e) {
+                //You'll need to add proper error handling here
+                Log.d("Romek file:", "File error" );
+            }
+        }
+        else
+        {
+            Log.d("Romek file:", "File not found" );
+        }
+
+        return result;
     }
 }

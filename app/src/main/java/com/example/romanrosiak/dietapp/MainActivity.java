@@ -1,5 +1,6 @@
 package com.example.romanrosiak.dietapp;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Environment;
@@ -30,7 +31,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends RuntimePermissionsActivity {
 
     private List<WeekListHolder> weekList = new ArrayList<>();
     private RecyclerView weekRV;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView pageTabTV;
 
     public String filePath;
+    private static final int REQUEST_PERMISSIONS = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,47 +128,10 @@ public class MainActivity extends AppCompatActivity {
         prepareWeekListData();
         prepareDayListData();
         prepareMealListData();
+        requestPermissionSet();
 
 
-//        try {
-//            String json = getStringFromFile(filePath);
-//            Log.d("Romek Json: ", json);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
-        File dir = Environment.getExternalStorageDirectory();
-//        File dir = new File(System.getenv("SECONDARY_STORAGE"));
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "receip.txt");
-        if(file.exists())   // check if file exist
-        {
-            //Read text from file
-            StringBuilder text = new StringBuilder();
-
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                String line;
-
-                while ((line = br.readLine()) != null) {
-                    text.append(line);
-                    text.append("\n");
-                }
-            }
-            catch (IOException e) {
-                //You'll need to add proper error handling here
-            }
-            //Set the text
-           Log.d("File text:", text.toString() );
-            Toast.makeText(getApplicationContext(),"File Found", Toast.LENGTH_SHORT);
-        }
-        else
-        {
-            Log.d("Romek file:", "File not found" );
-            Toast.makeText(getApplicationContext(),"File not Found", Toast.LENGTH_SHORT);
-        }
-
-        isExternalStorageReadable();
-        isExternalStorageWritable();
     }
 
     private void prepareWeekListData() {
@@ -278,6 +243,16 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d("Romek", "External Storage is not readable");
         return false;
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode) {
+        Toast.makeText(this, "Permissions Received.", Toast.LENGTH_LONG).show();
+    }
+
+    public void requestPermissionSet(){
+        MainActivity.super.requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                R.string.runtime_permissions_txt, REQUEST_PERMISSIONS);
     }
 
 
