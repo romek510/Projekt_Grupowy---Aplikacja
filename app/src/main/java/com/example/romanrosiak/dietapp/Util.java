@@ -101,4 +101,25 @@ public class Util {
 
         return result;
     }
+
+    public static List<String > prepareSnackList(JSONArray snackArray){
+
+        Log.d("Ingredients Array", snackArray.toString());
+        List<String> snackList =  new ArrayList<>();
+
+
+        for (int i = 0; i < snackArray.length(); i++) {
+            JSONObject currObject = null;
+            try {
+                currObject = snackArray.getJSONObject(i);
+                Log.d("Current Ingredient", currObject.toString());
+                snackList.add(currObject.getString("name"));
+
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return snackList;
+    }
 }

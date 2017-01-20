@@ -74,6 +74,16 @@ public class RecipeActivity extends AppCompatActivity{
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
         ingredientsRV.addItemDecoration(itemDecoration);
 
+        String extStorage = System.getenv("EXTERNAL_SDCARD_STORAGE");
+        String extStorage2 = System.getenv("SECONDARY_STORAGE");
+        if(extStorage != null){
+            Log.d("Storage1", extStorage);
+        }
+        if(extStorage2 != null){
+            Log.d("Storage2", extStorage2);
+        }
+
+
         String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/receip.txt";
         String jsonString = Util.returnStringFromFile(filePath);
 

@@ -7,4 +7,5 @@
     <string name="preparation">Przygotowanie:</string>
     <string name="recipe_not_found">Nie znaleźono przepisu dla wybranego dania</string>
     <string name="runtime_permissions_txt">Please enable ALL permissions from app settings.</string>
+    <string name="selectSnack">Wybierz przekąskę</string>
 </resources>
