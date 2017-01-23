@@ -7,7 +7,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Created by roman.rosiak on 18.01.2017.
+ * Klasa wykorzystywana do obsługi kliknięc w poszczególny item w RecyclerView.
+ * @author Roman Rosiak
  */
 
 public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {

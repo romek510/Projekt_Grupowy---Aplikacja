@@ -1,9 +1,9 @@
 package com.example.romanrosiak.dietapp.ListViewHolder;
 
 /**
- * Created by roman.rosiak on 19.01.2017.
+ * Obiekt przechowuje informacje o składnikach dań.
+ * @author Roman Rosiak
  */
-
 public class IngredientHolder {
 
     public String ingredientName;

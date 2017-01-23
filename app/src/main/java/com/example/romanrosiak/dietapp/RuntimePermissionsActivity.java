@@ -17,7 +17,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.SparseIntArray;
 import android.view.View;
 
-
+/**
+ * Klasa używana do nadawania permission seta do odczytu danych z External Storage.
+ * @author Roman Rosiak
+ */
 public abstract class RuntimePermissionsActivity extends AppCompatActivity {
     private SparseIntArray mErrorString;
 

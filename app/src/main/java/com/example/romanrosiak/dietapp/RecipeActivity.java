@@ -33,6 +33,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Activity odpowiadające za wyświetlanie skłądników i przepisu dla konkretnej potrawy.
+ * @author Roman Rosiak
+ */
 public class RecipeActivity extends AppCompatActivity{
 
     public TextView mealNameTV;

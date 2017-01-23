@@ -1,7 +1,8 @@
 package com.example.romanrosiak.dietapp.ListViewHolder;
 
 /**
- * Created by roman.rosiak on 18.01.2017.
+ * Obiekt przechowuje informacje o posiłach.
+ * @author Roman Rosiak
  */
 
 public class MealHolder {

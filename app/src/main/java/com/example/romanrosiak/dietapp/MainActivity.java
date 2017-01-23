@@ -38,6 +38,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Głowne activity, które rozpoczyna działanie całej aplikacji.
+ * @author Roman Rosiak
+ */
 public class MainActivity extends RuntimePermissionsActivity {
 
     private List<WeekListHolder> weekList = new ArrayList<>();
@@ -170,6 +174,12 @@ public class MainActivity extends RuntimePermissionsActivity {
         prepareMealListData("1", "Poniedziałek");
     }
 
+
+    /**
+     * Metoda generuje i wyświetla popup w którym można wybrać przekąski
+     * @param  view  Referencja do widoku w którym ma być wyświetlony popup.
+     * @param  snackPosition  Referencja do klikniętej pozycji.
+     */
     public void createSnackDialog(View view, final int snackPosition){
         final Dialog dialog = new Dialog(view.getContext());
         dialog.setContentView(R.layout.snack_dialog);
@@ -222,6 +232,15 @@ public class MainActivity extends RuntimePermissionsActivity {
         dialog.show();
     }
 
+    /**
+     * @author Roman Rosiak
+     * @description
+     * @date 23.01.2017
+     */
+
+    /**
+     * Metoda generuje tygodnie i wyświetla je w aplikacji.
+     */
     private void prepareWeekListData() {
 
         for (String key : dietList.keySet() ) {
@@ -234,6 +253,11 @@ public class MainActivity extends RuntimePermissionsActivity {
         weekAdapter.notifyDataSetChanged();
     }
 
+
+    /**
+     * Metoda generuje dni tygodnia i wyświetla w aplikacji
+     * @param  weekName  Numer wybranego tygodnia.
+     */
     private void prepareDayListData(String weekName) {
 
         dayList.clear();
@@ -273,6 +297,16 @@ public class MainActivity extends RuntimePermissionsActivity {
     }
 
 
+    /**
+     * @author Roman Rosiak
+     * @description Metoda wyświetla akutalne posiłki dla danego dnia
+     * @date 23.01.2017
+     */
+    /**
+     * Metoda generuje i wyświetla posiłki dla danego dnia
+     * @param  weekName  Numer wybranego tygodnia.
+     * @param  dayName  Nazwa wybranego dnia.
+     */
     private void prepareMealListData(String weekName, String dayName) {
 
         mealList.clear();
@@ -297,11 +331,19 @@ public class MainActivity extends RuntimePermissionsActivity {
         Toast.makeText(this, "Permissions Received.", Toast.LENGTH_LONG).show();
     }
 
+
+    /**
+     * Metoda sprawdza czy posiadamy permission set do odczytu danych z karty SD i jeśli nie to nadaje takie pozwolenie.
+     */
     public void requestPermissionSet(){
         MainActivity.super.requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 R.string.runtime_permissions_txt, REQUEST_PERMISSIONS);
     }
 
+
+    /**
+     * Metoda generuje HashMape w ktorej przechowywane są informacje na temat diety w poszczególne dni.
+     */
     public void preapareDiet(){
         String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/customer_diet.txt";
         String jsonString = Util.returnStringFromFile(filePath);
@@ -365,10 +407,6 @@ public class MainActivity extends RuntimePermissionsActivity {
         Log.d("WEEK List", dietList.toString());
 
     }
-
-
-
-
 
 
 }

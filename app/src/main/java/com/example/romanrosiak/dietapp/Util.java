@@ -18,10 +18,19 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by roman.rosiak on 20.01.2017.
+ * Klasa Util przechowywująca metody pomocnicze.
+ * @author Roman Rosiak
  */
 
 public class Util {
+
+    /**
+     * Methoda wyszukuje czy określona potrawa występuje w tabicy
+     * @param  mealsArray  Tablica typu JSONArray przechowywująca listę potraw.
+     * @param  mealName  Nazwa szukanej potrawy.
+     * @return      Zwraca obiekt typu JSONObject ze znalezioną potrawą.
+     * @see         JSONObject
+     */
 
     public static JSONObject findMealObject(JSONArray mealsArray, String mealName){
         String name;
@@ -46,6 +55,12 @@ public class Util {
         return searchObject;
     }
 
+    /**
+     * Methoda przygotowywuje listę skłądników w oparciu o dane odczytane z pliku JSON
+     * @param  ingredientArray  Tablica typu JSONArray przechowywująca listę składników dla wybranej potrawy.
+     * @return      Zwraca listę obiektów IngredientHolder
+     * @see         List<IngredientHolder>
+     */
     public static List<IngredientHolder> prepareIngredientList(JSONArray ingredientArray){
 
         Log.d("Ingredients Array", ingredientArray.toString());
@@ -70,6 +85,13 @@ public class Util {
 
         return ingList;
     }
+
+    /**
+     * Methoda odczytuje plik z karty urządzenia i zwraca go w postaci String
+     * @param  filePath  url do pliku, któryc chcemy odczytać
+     * @return      odczytana zawartość pliku w postaci Stringa
+     * @see         String
+     */
 
     public static String returnStringFromFile(String filePath){
 
@@ -104,11 +126,16 @@ public class Util {
         return result;
     }
 
-    public static List<String > prepareSnackList(JSONArray snackArray){
+    /**
+     * Methoda przygotowywuje listę dostępnych przekąsek w oparciu o otrzynama tablicę.
+     * @param  snackArray  Tablica typu JSONArray przechowywująca listę przekąsek.
+     * @return      Zwraca listę przekąsek.
+     * @see         List<String>
+     */
+    public static List<String> prepareSnackList(JSONArray snackArray){
 
         Log.d("Ingredients Array", snackArray.toString());
         List<String> snackList =  new ArrayList<>();
-
 
         for (int i = 0; i < snackArray.length(); i++) {
             JSONObject currObject = null;
@@ -147,6 +174,10 @@ public class Util {
         return false;
     }
 
+    /**
+     * Klasa używana do sortowania dni w odpowieniej kolejności.
+     * @author Roman Rosiak
+     */
     public static final class DayNameComparator implements Comparator<String>
     {
         private String[] items ={

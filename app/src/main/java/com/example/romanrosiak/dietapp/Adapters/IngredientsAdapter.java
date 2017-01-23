@@ -13,7 +13,8 @@ import com.example.romanrosiak.dietapp.R;
 import java.util.List;
 
 /**
- * Created by roman.rosiak on 18.01.2017.
+ * Klasa Adapter używana do przechowywania listy składników.
+ * @author Roman Rosiak
  */
 
 public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.MyViewHolder> {

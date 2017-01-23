@@ -1,7 +1,8 @@
 package com.example.romanrosiak.dietapp.ListViewHolder;
 
 /**
- * Created by roman.rosiak on 18.01.2017.
+ * Klasa przechowywujaca dni tygodnia.
+ * @author Roman Rosiak
  */
 
 public class WeekListHolder {
