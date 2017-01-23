@@ -3,20 +3,18 @@ package com.example.romanrosiak.dietapp;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,11 +32,18 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends RuntimePermissionsActivity {
@@ -61,6 +66,10 @@ public class MainActivity extends RuntimePermissionsActivity {
     private static final int REQUEST_PERMISSIONS = 20;
 
     private String selectSnacks;
+    public HashMap<String, HashMap<String, List<MealHolder>>> dietList;
+    public HashMap<String, List<String>> weekRageMap;
+    public String selectedWeek = "1";
+    public String selectedDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +78,10 @@ public class MainActivity extends RuntimePermissionsActivity {
 
         //filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DietApp/receip.json";
         filePath = System.getenv("SECONDARY_STORAGE")+"/DietApp/receip.json";
-        selectSnacks = getResources().getString(R.string.selectSnack);;
+        selectSnacks = getResources().getString(R.string.selectSnack);
+        dietList = new HashMap<>();
+        weekRageMap = new HashMap<>();
+
 
         pageTabTV = (TextView) findViewById(R.id.dietPageTabTV);
         pageTabTV.setBackgroundResource(R.drawable.page_selector);
@@ -95,9 +107,15 @@ public class MainActivity extends RuntimePermissionsActivity {
                 new RecyclerItemClickListener(getApplicationContext(), weekRV, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         // TODO Handle item click
-                        Log.d("Romek", String.valueOf(position));
-                        Log.d("Romek ingredientName", weekList.get(position).getWeekName());
-                        Log.d("Romek filepath: ", filePath.toString());
+
+
+                        String weekKey = weekList.get(position).getWeekName().substring(weekList.get(position).getWeekName().length()-1,weekList.get(position).getWeekName().length());
+
+                        Log.d("WeekKey", weekKey);
+                        prepareDayListData(weekKey);
+                        selectedWeek = weekKey;
+
+
 
                     }
                     @Override
@@ -120,6 +138,7 @@ public class MainActivity extends RuntimePermissionsActivity {
                         // TODO Handle item click
                         Log.d("Romek", String.valueOf(position));
                         Log.d("Romek dayName", dayList.get(position).getWeekName());
+                        prepareMealListData(selectedWeek, dayList.get(position).getWeekName());
                     }
 
                     @Override
@@ -162,12 +181,12 @@ public class MainActivity extends RuntimePermissionsActivity {
                     }
                 })
         );
+        requestPermissionSet();
+        preapareDiet();
 
         prepareWeekListData();
-        prepareDayListData();
-        prepareMealListData();
-        requestPermissionSet();
-
+        prepareDayListData("1");
+        prepareMealListData("1", "Poniedziałek");
     }
 
     public void createSnackDialog(View view, final int snackPosition){
@@ -226,67 +245,88 @@ public class MainActivity extends RuntimePermissionsActivity {
     }
 
     private void prepareWeekListData() {
-        WeekListHolder week = new WeekListHolder("Tydzień 1", "18.01-23.01");
-        weekList.add(week);
 
-        week = new WeekListHolder("Tydzień 2", "24.01-27.01");
-        weekList.add(week);
+        for (String key : dietList.keySet() ) {
+            String weekName = "Tydzień " + key;
+            List <String> weekDateList = weekRageMap.get(key);
+            String weekRange = weekDateList.get(0).substring(0,5)+ " - " + weekDateList.get(1).substring(0,5);
+            WeekListHolder week = new WeekListHolder(weekName, weekRange);
+            weekList.add(week);
+        }
 
-        week = new WeekListHolder("Tydzień 3", "28.01-03.02");
-        weekList.add(week);
-
-        week = new WeekListHolder("Tydzień 4", "04.02-10.02");
-        weekList.add(week);
-
-        week = new WeekListHolder("Tydzień 5", "11.02-23.02");
-        weekList.add(week);
 
         weekAdapter.notifyDataSetChanged();
     }
 
-    private void prepareDayListData() {
-        WeekListHolder day = new WeekListHolder("Poniedziałek", "01.01");
-        dayList.add(day);
+    private void prepareDayListData(String weekName) {
 
-        day = new WeekListHolder("Wtorek", "02.01");
-        dayList.add(day);
+        dayList.clear();
+        HashMap<String, List<MealHolder>> dayMap = dietList.get(weekName);
+        List<String> days = new ArrayList<>();
+        for(String key : dayMap.keySet()){
+           days.add(key);
+        }
+        DayNameComparator myComparator = new DayNameComparator();
+        Collections.sort(days, myComparator);
 
-        day = new WeekListHolder("Środa", "03.01");
-        dayList.add(day);
+        String dtStart = weekRageMap.get(weekName).get(0);
 
-        day = new WeekListHolder("Czwartek", "04.01");
-        dayList.add(day);
 
-        day = new WeekListHolder("Piątek", "05.01");
-        dayList.add(day);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+        Date date=new Date();
+        try {
+            date = (Date) formatter.parse(dtStart);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
-        day = new WeekListHolder("Sobota", "06.01");
-        dayList.add(day);
+        SimpleDateFormat formatter2 = new SimpleDateFormat("dd.MM");
 
-        day = new WeekListHolder("Niedziela", "07.01");
-        dayList.add(day);
+        int k = 0;
+        for(String day : days){
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            c.add(Calendar.DATE, k);
+            WeekListHolder d = new WeekListHolder(day,formatter2.format(c.getTime()));
+            dayList.add(d);
+            k++;
+        }
 
         dayAdapter.notifyDataSetChanged();
+        Log.d("WeekDay", "***UPDATE");
     }
 
 
-    private void prepareMealListData() {
-        MealHolder meal = new MealHolder("8:00", "Sniadanie", "Twarozek z kiełkami");
-        mealList.add(meal);
+    private void prepareMealListData(String weekName, String dayName) {
 
-        meal = new MealHolder("10:30", "Przekaska",selectSnacks);
-        mealList.add(meal);
-
-        meal = new MealHolder("13:00", "Obiad", "Riggatoni z Brokułem");
-        mealList.add(meal);
-
-        meal = new MealHolder("15:30", "Przekaska", selectSnacks);
-        mealList.add(meal);
-
-        meal = new MealHolder("18:00", "Kolacja", "Roladki z indyka");
-        mealList.add(meal);
-
+        mealList.clear();
+        mealList.addAll(dietList.get(weekName).get(dayName));
+        Collections.sort(mealList, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                MealHolder p1 = (MealHolder) o1;
+                MealHolder p2 = (MealHolder) o2;
+                return p1.getMealHour().compareToIgnoreCase(p2.getMealHour());
+            }
+        });
         Log.d("Romek - Meal List: ", mealList.toString());
+//
+//        MealHolder meal = new MealHolder("8:00", "Sniadanie", "Twarozek z kiełkami");
+//        mealList.add(meal);
+//
+//        meal = new MealHolder("10:30", "Przekaska",selectSnacks);
+//        mealList.add(meal);
+//
+//        meal = new MealHolder("13:00", "Obiad", "Riggatoni z Brokułem");
+//        mealList.add(meal);
+//
+//        meal = new MealHolder("15:30", "Przekaska", selectSnacks);
+//        mealList.add(meal);
+//
+//        meal = new MealHolder("18:00", "Kolacja", "Roladki z indyka");
+//        mealList.add(meal);
+//
+//        Log.d("Romek - Meal List: ", mealList.toString());
 
         mealAdapter.notifyDataSetChanged();
         Log.d("Romek - Meal Adapter: ", mealAdapter.toString());
@@ -345,6 +385,93 @@ public class MainActivity extends RuntimePermissionsActivity {
         MainActivity.super.requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 R.string.runtime_permissions_txt, REQUEST_PERMISSIONS);
     }
+
+    public void preapareDiet(){
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/customer_diet.txt";
+        String jsonString = Util.returnStringFromFile(filePath);
+
+        JSONObject json;
+        JSONArray weekArray = null;
+        try {
+            json = new JSONObject(jsonString);
+            weekArray = json.getJSONArray("diets");
+            for(int i=0; i<weekArray.length(); i++){
+
+                HashMap<String, List<MealHolder>> mealsMap = new HashMap<String, List<MealHolder>>();
+
+                JSONObject weekObj = weekArray.getJSONObject(i);
+                Log.d("JSONobj", weekObj.toString());
+                JSONArray daysArray = weekObj.getJSONArray("days");
+
+                for(int j=0; j<daysArray.length(); j++){
+
+                    List<MealHolder> mealList = new ArrayList<>();
+
+                    JSONObject mealObj = daysArray.getJSONObject(j);
+                    JSONArray mealArray = mealObj.getJSONArray("meals");
+                    for(int k=0; k<mealArray.length(); k++){
+
+                        JSONObject meal = mealArray.getJSONObject(k);
+
+                        MealHolder mealHld =  new MealHolder();
+                        if(meal.getString("mealName").isEmpty()){
+                            mealHld.setMealName(selectSnacks);
+                        }else{
+                            mealHld.setMealName(meal.getString("mealName"));
+                        }
+
+                        mealHld.setMealHour(meal.getString("mealTime"));
+                        mealHld.setMealType(meal.getString("mealType"));
+                        mealList.add(mealHld);
+                        Log.d("DayMeals List", mealList.toString());
+                    }
+
+                    mealsMap.put(mealObj.getString("dayName"), mealList);
+                    Log.d("DayMeals Map", mealsMap.toString());
+
+                }
+                List<String> weekRangeList = new ArrayList<>();
+                weekRangeList.add(weekObj.getString("weekDateStart"));
+                weekRangeList.add(weekObj.getString("weekDateEnd"));
+
+                weekRageMap.put(weekObj.getString("weekNumber"), weekRangeList);
+                dietList.put(weekObj.getString("weekNumber"), mealsMap);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.d("WEEK List", dietList.toString());
+
+       
+    }
+
+    public final class DayNameComparator implements Comparator<String>
+    {
+        private String[] items ={
+                "Poniedziałek",
+                "Wtorek",
+                "Środa",
+                "Czwartek",
+                "Piątek",
+                "Sobota",
+                "Niedziela"
+        };
+        @Override
+        public int compare(String a, String b)
+        {
+            int ai = items.length, bi=items.length;
+            for(int i = 0; i<items.length; i++)
+            {
+                if(items[i].equalsIgnoreCase(a))
+                    ai=i;
+                if(items[i].equalsIgnoreCase(b))
+                    bi=i;
+            }
+            return ai-bi;
+        }
+    }
+
 
 
 
