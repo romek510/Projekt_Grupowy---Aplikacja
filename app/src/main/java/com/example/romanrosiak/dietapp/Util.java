@@ -1,5 +1,6 @@
 package com.example.romanrosiak.dietapp;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.example.romanrosiak.dietapp.ListViewHolder.IngredientHolder;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -122,4 +124,53 @@ public class Util {
 
         return snackList;
     }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            Log.d("Romek", "External Storage is writable");
+            return true;
+        }
+        Log.d("Romek", "External Storage is not writable");
+        return false;
+    }
+
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            Log.d("Romek", "External Storage is readable");
+            return true;
+        }
+        Log.d("Romek", "External Storage is not readable");
+        return false;
+    }
+
+    public static final class DayNameComparator implements Comparator<String>
+    {
+        private String[] items ={
+                "Poniedziałek",
+                "Wtorek",
+                "Środa",
+                "Czwartek",
+                "Piątek",
+                "Sobota",
+                "Niedziela"
+        };
+        @Override
+        public int compare(String a, String b)
+        {
+            int ai = items.length, bi=items.length;
+            for(int i = 0; i<items.length; i++)
+            {
+                if(items[i].equalsIgnoreCase(a))
+                    ai=i;
+                if(items[i].equalsIgnoreCase(b))
+                    bi=i;
+            }
+            return ai-bi;
+        }
+    }
+
 }

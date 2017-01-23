@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -29,14 +28,7 @@ import com.example.romanrosiak.dietapp.ListViewHolder.WeekListHolder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,14 +61,12 @@ public class MainActivity extends RuntimePermissionsActivity {
     public HashMap<String, HashMap<String, List<MealHolder>>> dietList;
     public HashMap<String, List<String>> weekRageMap;
     public String selectedWeek = "1";
-    public String selectedDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DietApp/receip.json";
         filePath = System.getenv("SECONDARY_STORAGE")+"/DietApp/receip.json";
         selectSnacks = getResources().getString(R.string.selectSnack);
         dietList = new HashMap<>();
@@ -107,15 +97,9 @@ public class MainActivity extends RuntimePermissionsActivity {
                 new RecyclerItemClickListener(getApplicationContext(), weekRV, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         // TODO Handle item click
-
-
                         String weekKey = weekList.get(position).getWeekName().substring(weekList.get(position).getWeekName().length()-1,weekList.get(position).getWeekName().length());
-
-                        Log.d("WeekKey", weekKey);
                         prepareDayListData(weekKey);
                         selectedWeek = weekKey;
-
-
 
                     }
                     @Override
@@ -124,9 +108,6 @@ public class MainActivity extends RuntimePermissionsActivity {
                     }
                 })
         );
-
-
-
 
         dayRV.setLayoutManager(horizontaldayRVlayout);
         dayRV.setItemAnimator(new DefaultItemAnimator());
@@ -192,7 +173,7 @@ public class MainActivity extends RuntimePermissionsActivity {
     public void createSnackDialog(View view, final int snackPosition){
         final Dialog dialog = new Dialog(view.getContext());
         dialog.setContentView(R.layout.snack_dialog);
-        dialog.setTitle("Test");
+        dialog.setTitle(selectSnacks);
 
         Window window = dialog.getWindow();
         window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -214,7 +195,6 @@ public class MainActivity extends RuntimePermissionsActivity {
             e.printStackTrace();
         }
 
-
         ArrayAdapter<String> itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 
         ListView listView = (ListView) dialog.findViewById(R.id.snacksListView);
@@ -229,8 +209,6 @@ public class MainActivity extends RuntimePermissionsActivity {
                 dialog.dismiss();
             }
         });
-
-
 
         Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
         // if button is clicked, close the custom dialog
@@ -253,8 +231,6 @@ public class MainActivity extends RuntimePermissionsActivity {
             WeekListHolder week = new WeekListHolder(weekName, weekRange);
             weekList.add(week);
         }
-
-
         weekAdapter.notifyDataSetChanged();
     }
 
@@ -266,7 +242,7 @@ public class MainActivity extends RuntimePermissionsActivity {
         for(String key : dayMap.keySet()){
            days.add(key);
         }
-        DayNameComparator myComparator = new DayNameComparator();
+        Util.DayNameComparator myComparator = new Util.DayNameComparator();
         Collections.sort(days, myComparator);
 
         String dtStart = weekRageMap.get(weekName).get(0);
@@ -310,71 +286,11 @@ public class MainActivity extends RuntimePermissionsActivity {
             }
         });
         Log.d("Romek - Meal List: ", mealList.toString());
-//
-//        MealHolder meal = new MealHolder("8:00", "Sniadanie", "Twarozek z kiełkami");
-//        mealList.add(meal);
-//
-//        meal = new MealHolder("10:30", "Przekaska",selectSnacks);
-//        mealList.add(meal);
-//
-//        meal = new MealHolder("13:00", "Obiad", "Riggatoni z Brokułem");
-//        mealList.add(meal);
-//
-//        meal = new MealHolder("15:30", "Przekaska", selectSnacks);
-//        mealList.add(meal);
-//
-//        meal = new MealHolder("18:00", "Kolacja", "Roladki z indyka");
-//        mealList.add(meal);
-//
-//        Log.d("Romek - Meal List: ", mealList.toString());
 
         mealAdapter.notifyDataSetChanged();
         Log.d("Romek - Meal Adapter: ", mealAdapter.toString());
     }
 
-
-    public static String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        reader.close();
-        return sb.toString();
-    }
-
-    public static String getStringFromFile (String filePath) throws Exception {
-        File fl = new File(System.getenv("SECONDARY_STORAGE"));
-        Log.d("Romek files: ", fl.toString());
-        FileInputStream fin = new FileInputStream(fl);
-        String ret = convertStreamToString(fin);
-        //Make sure you close all streams.
-        fin.close();
-        return ret;
-    }
-
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            Log.d("Romek", "External Storage is writable");
-            return true;
-        }
-        Log.d("Romek", "External Storage is not writable");
-        return false;
-    }
-
-    /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            Log.d("Romek", "External Storage is readable");
-            return true;
-        }
-        Log.d("Romek", "External Storage is not readable");
-        return false;
-    }
 
     @Override
     public void onPermissionsGranted(int requestCode) {
@@ -421,7 +337,12 @@ public class MainActivity extends RuntimePermissionsActivity {
                         }
 
                         mealHld.setMealHour(meal.getString("mealTime"));
-                        mealHld.setMealType(meal.getString("mealType"));
+                        if(meal.getString("mealType").equalsIgnoreCase("snack")){
+                            mealHld.setMealType("Przekąska");
+                        }else{
+                            mealHld.setMealType(meal.getString("mealType"));
+                        }
+
                         mealList.add(mealHld);
                         Log.d("DayMeals List", mealList.toString());
                     }
@@ -443,34 +364,8 @@ public class MainActivity extends RuntimePermissionsActivity {
         }
         Log.d("WEEK List", dietList.toString());
 
-       
     }
 
-    public final class DayNameComparator implements Comparator<String>
-    {
-        private String[] items ={
-                "Poniedziałek",
-                "Wtorek",
-                "Środa",
-                "Czwartek",
-                "Piątek",
-                "Sobota",
-                "Niedziela"
-        };
-        @Override
-        public int compare(String a, String b)
-        {
-            int ai = items.length, bi=items.length;
-            for(int i = 0; i<items.length; i++)
-            {
-                if(items[i].equalsIgnoreCase(a))
-                    ai=i;
-                if(items[i].equalsIgnoreCase(b))
-                    bi=i;
-            }
-            return ai-bi;
-        }
-    }
 
 
 
